@@ -1,16 +1,13 @@
-const webpack = require('webpack');
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const WorkboxPlugin = require('workbox-webpack-plugin');
-
-const ASSET_PATH = process.env.ASSET_PATH || '/';
 
 module.exports = {
     entry: './index.js',
     context: path.join(__dirname, 'app'),
     devServer: {
         host: 'localhost',
-        publicPath: ASSET_PATH,
+        publicPath: '/',
         contentBase: "./app",
         watchContentBase: true,
         noInfo: false,
@@ -24,9 +21,8 @@ module.exports = {
     },
     output: {
         path: path.join(__dirname, "/"),
-        publicPath: ASSET_PATH,
         filename: "bundle.js",
-        chunkFilename: './[name].bundle.js'
+        chunkFilename: '[name].bundle.js'
     },
     resolve: {
         modules: [
@@ -66,9 +62,6 @@ module.exports = {
             clientsClaim: true,
             skipWaiting: true,
         }),
-        new webpack.DefinePlugin({
-            'process.env.ASSET_PATH': JSON.stringify(ASSET_PATH),
-        })
     ],
     optimization: {
         splitChunks: {
