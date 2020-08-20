@@ -1,0 +1,39 @@
+{
+    "presets": [
+        [
+            "@babel/preset-env",
+            {
+                "useBuiltIns": "entry",
+                "modules": false,
+                "targets": {
+                    "node": "current"
+                }
+            }
+        ],
+        "@babel/preset-typescript",
+        "@babel/preset-react"
+    ],
+    "plugins": [
+        "@babel/plugin-transform-modules-commonjs",
+        "@babel/proposal-object-rest-spread",
+        [
+            "@babel/plugin-transform-runtime",
+            {
+                "helpers": true,
+                "regenerator": true,
+                "useESModules": false
+            }
+        ],
+        [
+            "module-resolver",
+            {
+                "root": [
+                    "./app"
+                ],
+                "alias": {
+                    "tests": "./tests"
+                }
+            }
+        ]
+    ]
+}
