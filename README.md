@@ -1,1 +1,0 @@
-# simple-area-world
