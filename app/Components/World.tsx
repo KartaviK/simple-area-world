@@ -151,8 +151,6 @@ export default function World({width, height, hero, children, increaseTree, incr
   document.onkeypress = e => {
     const code = e.code;
 
-    console.log(code);
-
     if (code === 'KeyS') {
       setSide(Direction.DOWN);
 

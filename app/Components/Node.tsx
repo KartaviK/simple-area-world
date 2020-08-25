@@ -33,6 +33,7 @@ const directions = {
 }
 
 export default function Node({definition, rotate, direction}: INodeProps) {
+  // todo: use context or custom hook to rerender only one node instead of whole matrix
   return <div style={{display: 'table-cell', fontSize: '12px'}}>
     {definition === NodeDisplay.HERO
       ? <FontAwesomeIcon icon={directions[direction ?? Direction.UP]} color={'red'}/>
