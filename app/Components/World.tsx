@@ -32,7 +32,6 @@ export default function World({width, height, hero, children, increaseTree, incr
   const [nodes, setNodes] = useState([[]]) as [NodeDisplay[][], React.Dispatch<NodeDisplay[][]>]
   const [biomes, setBiomes] = useState([]) as [BiomeDefinition[], React.Dispatch<BiomeDefinition[]>]
   const [side, setSide] = useState(Direction.DOWN) as [Direction, React.Dispatch<Direction>]
-  const ref = useRef();
 
   useEffect(() => {
     // if (init) {

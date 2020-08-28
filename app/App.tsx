@@ -11,8 +11,8 @@ export default function App() {
 
   return <World
     hero={{row: 0, col: 0}}
-    width={10}
-    height={10}
+    width={30}
+    height={30}
     increaseTree={() => setTree(tree + 1)}
     increaseStone={() => setStone(stone + 1)}
   >
