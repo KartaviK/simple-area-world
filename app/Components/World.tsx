@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {createRef, useEffect, useRef, useState} from "react";
 import randomInt from "Helpers/randomInt";
 import {NodeDisplay} from "Types/NodeDisplay";
 import Node from "Components/Node";
@@ -6,6 +6,8 @@ import {Biome} from "Types/Biome";
 import {nodeBuilder} from "Helpers/nodeBuilder";
 import {Direction} from "Types/Direction";
 import isWalkableArea from "Helpers/canMove";
+import {WorldContext} from "Components/GameContext";
+import {ResourcesContext} from "Components/ResourcesContext";
 
 export interface IWorldProps {
   width: number
@@ -30,11 +32,21 @@ export default function World({width, height, hero, children, increaseTree, incr
   const [nodes, setNodes] = useState([[]]) as [NodeDisplay[][], React.Dispatch<NodeDisplay[][]>]
   const [biomes, setBiomes] = useState([]) as [BiomeDefinition[], React.Dispatch<BiomeDefinition[]>]
   const [side, setSide] = useState(Direction.DOWN) as [Direction, React.Dispatch<Direction>]
+  const ref = useRef();
 
   useEffect(() => {
+    // if (init) {
+    //   document.onkeypress = e => {
+    //     ref.dispatchEvent(new KeyboardEvent('keypress', {
+    //       key: 'Enter',
+    //     }));
+    //   }
+    // }
+
     if (!init && biomes.length === 0) {
-      const biomesCount = randomInt(15, 20)
+      const biomesCount = randomInt(2, 4)
       const biomesPositions: { x: number, y: number }[] = []
+
       let generatedX: number = null
       let generatedY: number = null
 
@@ -47,10 +59,10 @@ export default function World({width, height, hero, children, increaseTree, incr
       for (let i = 0; i <= biomesCount; i++) {
         // todo: make this two loops as helper function
         do {
-          generatedX = randomInt(0, width);
+          generatedX = randomInt(0, width - 1);
 
           if (biomesPositions.length === 0) {
-            break;
+            break
           }
 
           let match = false;
@@ -62,12 +74,12 @@ export default function World({width, height, hero, children, increaseTree, incr
           }
 
           if (!match) {
-            break;
+            break
           }
         } while (true)
 
         do {
-          generatedY = randomInt(0, height);
+          generatedY = randomInt(0, height - 1);
 
           if (biomesPositions.length === 0) {
             break;
@@ -116,13 +128,13 @@ export default function World({width, height, hero, children, increaseTree, incr
 
       // todo: optimize algorithm. Wee need to unset biome that can not fill
       builder: while (build) {
-        biomes.forEach(biome => {
+        biomes.forEach((biome, index) => {
           for (let i = biome.position.x - lvl; i <= biome.position.x + lvl; i++) {
             for (let j = biome.position.y - lvl; j <= biome.position.y + lvl; j++) {
-              const radiusDestination = Math.pow(i - biome.position.x, 2) + Math.pow(j - biome.position.y, 2)
+              const radiusDestination = Math.sqrt(Math.pow(i - biome.position.x, 2) + Math.pow(j - biome.position.y, 2))
 
               if (
-                radiusDestination <= Math.pow(lvl, 2) &&
+                radiusDestination <= lvl &&
                 (i >= 0 && i < height && j >= 0 && j < width) &&
                 typeof nodes[i][j] !== 'number' // todo: i think there is a better way to understand that node is set
               ) {
@@ -130,7 +142,7 @@ export default function World({width, height, hero, children, increaseTree, incr
               }
             }
           }
-        });
+        })
 
         lvl++
 
@@ -149,30 +161,30 @@ export default function World({width, height, hero, children, increaseTree, incr
   }, [nodes, biomes])
 
   document.onkeypress = e => {
-    const code = e.code;
+    const code = e.code
 
     if (code === 'KeyS') {
-      setSide(Direction.DOWN);
+      setSide(Direction.DOWN)
 
       if (position.row !== height - 1) {
         if (isWalkableArea(nodes[position.row + 1][position.col])) {
-          position.row++;
+          position.row++
         }
       }
     } else if (code === 'KeyD') {
-      setSide(Direction.RIGHT);
+      setSide(Direction.RIGHT)
 
       if (position.col !== width - 1) {
         if (isWalkableArea(nodes[position.row][position.col + 1])) {
-          position.col++;
+          position.col++
         }
       }
     } else if (code === 'KeyW') {
-      setSide(Direction.UP);
+      setSide(Direction.UP)
 
       if (position.row !== 0) {
         if (isWalkableArea(nodes[position.row - 1][position.col])) {
-          position.row--;
+          position.row--
         }
       }
     } else if (code === 'KeyA') {
@@ -180,66 +192,73 @@ export default function World({width, height, hero, children, increaseTree, incr
 
       if (position.col !== 0) {
         if (isWalkableArea(nodes[position.row][position.col - 1])) {
-          position.col--;
+          position.col--
         }
       }
     } else if (code === 'Space') {
-      if (side === Direction.DOWN && position.row !== height - 1 && nodes[position.row + 1][position.col] !== NodeDisplay.PLAIN) {
-        if (nodes[position.row + 1][position.col] === 1) {
-          increaseTree();
-        } else if (nodes[position.row + 1][position.col] === 2) {
-          increaseStone();
+      const downElement = nodes[position.row + 1][position.col];
+
+      if (side === Direction.DOWN && position.row !== height - 1 && downElement !== NodeDisplay.PLAIN) {
+        if (downElement === NodeDisplay.TREE) {
+          increaseTree()
+        } else if (downElement === NodeDisplay.STONE) {
+          increaseStone()
         }
 
         nodes[position.row + 1][position.col] = NodeDisplay.PLAIN;
       } else if (side === Direction.RIGHT && position.col !== width - 1 && nodes[position.row][position.col + 1] !== NodeDisplay.PLAIN) {
-        if (nodes[position.row][position.col + 1] === 1) {
-          increaseTree();
-        } else if (nodes[position.row][position.col + 1] === 2) {
-          increaseStone();
+        if (nodes[position.row][position.col + 1] === NodeDisplay.TREE) {
+          increaseTree()
+        } else if (nodes[position.row][position.col + 1] === NodeDisplay.STONE) {
+          increaseStone()
         }
 
         nodes[position.row][position.col + 1] = NodeDisplay.PLAIN;
-      } else if (side === Direction.UP && position.row !== 0 && nodes[position.row - 1][position.col] !== NodeDisplay.PLAIN) {
-        if (nodes[position.row - 1][position.col] === 1) {
-          increaseTree();
-        } else if (nodes[position.row - 1][position.col] === 2) {
-          increaseStone();
+      } else if (side === Direction.UP && position.row >= 0 && nodes[position.row - 1][position.col] !== NodeDisplay.PLAIN) {
+        if (nodes[position.row - 1][position.col] === NodeDisplay.TREE) {
+          increaseTree()
+        } else if (nodes[position.row - 1][position.col] === NodeDisplay.STONE) {
+          increaseStone()
         }
 
         nodes[position.row - 1][position.col] = NodeDisplay.PLAIN;
-      } else if (side === Direction.LEFT && position.row !== 0 && nodes[position.row][position.col - 1] !== NodeDisplay.PLAIN) {
-        if (nodes[position.row][position.col - 1] === 1) {
-          increaseTree();
-        } else if (nodes[position.row][position.col - 1] === 2) {
-          increaseStone();
+      } else if (side === Direction.LEFT && position.row >= 0 && nodes[position.row][position.col - 1] !== NodeDisplay.PLAIN) {
+        if (nodes[position.row][position.col - 1] === NodeDisplay.TREE) {
+          increaseTree()
+        } else if (nodes[position.row][position.col - 1] === NodeDisplay.STONE) {
+          increaseStone()
         }
 
-        nodes[position.row][position.col - 1] = NodeDisplay.PLAIN;
+        nodes[position.row][position.col - 1] = NodeDisplay.PLAIN
       }
 
-      setNodes([...nodes]);
+      setNodes([...nodes])
     }
 
-    setPosition({...position});
+    setPosition({...position})
   }
 
-  return <div className={'noselect'} style={{display: 'table'}}>
-    <div style={{display: 'table-cell'}}>
-      {nodes.map((rows, i) => {
-        return <div key={i} style={{display: 'table'}}>
-          {rows.map((col, j) => {
-            return <div key={j} style={{display: 'table-cell', width: '15px', height: '15px'}}>
-              <Node
-                definition={i === position.row && j === position.col ? NodeDisplay.HERO : col}
-                direction={side}
-                rotate={col === NodeDisplay.STONE}
-              />
-            </div>;
+  return <WorldContext.Provider value={{nodes: nodes, hero: {row: 0, col: 0}}}>
+    <ResourcesContext.Provider value={{tree: 0, stone: 0}}>
+      <div className={'noselect'} style={{display: 'table'}}>
+        <div style={{display: 'table-cell'}}>
+          {nodes.map((rows, i) => {
+            return <div key={i} style={{display: 'table'}}>
+              {rows.map((col, j) => {
+                return <div key={j} style={{display: 'table-cell', width: '15px', height: '15px'}}>
+                  <Node
+                    // ref={ref}
+                    definition={i === position.row && j === position.col ? NodeDisplay.HERO : col}
+                    direction={side}
+                    rotate={col === NodeDisplay.STONE}
+                  />
+                </div>;
+              })}
+            </div>
           })}
         </div>
-      })}
-    </div>
-    {...(Array.isArray(children) ? children : [children])}
-  </div>
+        {...(Array.isArray(children) ? children : [children])}
+      </div>
+    </ResourcesContext.Provider>
+  </WorldContext.Provider>
 }

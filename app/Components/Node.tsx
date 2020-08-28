@@ -17,6 +17,7 @@ export interface INodeProps {
   definition: NodeDisplay
   rotate: boolean
   direction?: Direction
+  // ref: React.MutableRefObject<unknown>
 }
 
 const icons = {
@@ -34,7 +35,7 @@ const directions = {
 
 export default function Node({definition, rotate, direction}: INodeProps) {
   // todo: use context or custom hook to rerender only one node instead of whole matrix
-  return <div style={{display: 'table-cell', fontSize: '12px'}}>
+  return <div style={{display: 'table-cell', fontSize: '12px'}} onKeyPress={e => console.log(e)}>
     {definition === NodeDisplay.HERO
       ? <FontAwesomeIcon icon={directions[direction ?? Direction.UP]} color={'red'}/>
       : <FontAwesomeIcon transform={{rotate: rotate ? 180 : 0}} icon={icons[definition]}/>}
