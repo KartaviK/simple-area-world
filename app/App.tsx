@@ -1,29 +1,6 @@
 import * as React from 'react';
 import {useState} from "react";
-import {
-  faTree,
-  faAlignJustify,
-  faAngleDown,
-  faAngleRight,
-  faAngleUp,
-  faAngleLeft,
-  faIcicles,
-} from '@fortawesome/free-solid-svg-icons';
-import {IconDefinition} from "@fortawesome/fontawesome-common-types";
 import World from "Components/World";
-
-function getSide(type: number): IconDefinition {
-  switch (type) {
-    case 0:
-      return faAngleDown;
-    case 1:
-      return faAngleRight;
-    case 2:
-      return faAngleUp;
-    case 3:
-      return faAngleLeft;
-  }
-}
 
 export default function App() {
   const [tree, setTree] = useState(0);
@@ -34,8 +11,8 @@ export default function App() {
 
   return <World
     hero={{row: 0, col: 0}}
-    width={width}
-    height={height}
+    width={30}
+    height={30}
     increaseTree={() => setTree(tree + 1)}
     increaseStone={() => setStone(stone + 1)}
   >
